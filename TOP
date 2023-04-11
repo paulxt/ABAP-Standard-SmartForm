@@ -1,0 +1,275 @@
+*&---------------------------------------------------------------------*
+*& INCLUDE    TOP
+*&---------------------------------------------------------------------*
+TABLES: knvv, kna1.
+
+DATA: w_name1 TYPE kna1-name1,
+      w_stras TYPE kna1-stras,
+      w_all TYPE int2,
+      w_num TYPE int2.
+
+DATA: BEGIN OF wa_main,
+        print_date TYPE datum,              "列印日期
+        page(3),                            "頁次
+        kunnr TYPE kna1-kunnr,              "客戶代號
+        mcod1 TYPE kna1-mcod1,              "客戶簡稱
+        ktokd TYPE kna1-ktokd,              "分組(串接)
+        txt30 TYPE t077x-txt30,             "分組說明
+        name(100),                          "客戶全名
+        atwrt TYPE ausp-atwrt,              "負責人
+        atwrt2 TYPE ausp-atwrt,             "聯絡人
+        tel_number1 TYPE adr2-tel_number,   "電話
+        telfx TYPE kna1-telfx,              "傳真
+        tel_number2 TYPE adr2-tel_number,   "行動電話
+        smtp_addr TYPE adr6-smtp_addr,      "電子郵件
+        street(100),                        "地址
+        pstlz TYPE kna1-pstlz,              "郵遞區號
+        land1 TYPE kna1-land1,              "國家
+        stcd1 TYPE kna1-stcd1,              "統編
+        stcd2 TYPE kna1-stcd2,              "身分證字號
+        remark TYPE adrct-remark,           "食品業者登錄字號
+
+        atwrt3 TYPE ausp-atwrt,             "實際經營者
+        atwrt4 TYPE ausp-atwrt,             "債務者
+        katr1 TYPE kna1-katr1,              "銷貨單不列印業務員
+        atwtb TYPE cawnt-atwtb,             "經營方式
+        limit TYPE int2,                    "經營年限
+        atwrt6 TYPE ausp-atwrt,             "營業項目
+        atwrt7 TYPE ausp-atwrt,             "營業規模
+        atwrt8 TYPE ausp-atwrt,             "營業面積
+        atwtb2 TYPE cawnt-atwtb,            "銷售屬性
+        atwtb3 TYPE cawnt-atwtb,            "業態
+        atwtb4 TYPE cawnt-atwtb,            "客戶分類
+        adrnr TYPE kna1-adrnr,              "串接
+        confs TYPE knb1-confs,              "審核待審核的確認key
+        butxt TYPE t001-butxt,
+      END OF wa_main,
+      t_main LIKE STANDARD TABLE OF wa_main,
+      lwa_main LIKE wa_main,
+      lt_main LIKE STANDARD TABLE OF lwa_main.
+
+
+DATA: BEGIN OF wa_detail,
+        kunnr TYPE knvv-kunnr,
+        vkorg TYPE knvv-vkorg,              "銷售組織
+        spart TYPE knvv-spart,              "部門
+        bzirk TYPE knvv-bzirk,              "課別
+        kdgrp TYPE knvv-kdgrp,              "客戶通路
+        vkbur TYPE knvv-vkbur,              "銷售據點
+        waers TYPE knvv-waers,              "幣別
+        kurst TYPE knvv-kurst,              "匯率類型
+        kalks TYPE knvv-kalks,              "含稅未稅
+        vwerk TYPE knvv-vwerk,              "交貨工廠
+        vsbed TYPE knvv-vsbed,              "交貨條件
+        podkz TYPE knvv-podkz,              "POD相關
+        kztlf TYPE knvv-kztlf,              "訂單只交貨一次
+        inco1 TYPE knvv-inco1,              "國貿條件
+        text1 TYPE t052u-text1,             "付款條件說明
+        zterm TYPE knvv-zterm,
+        ktgrd TYPE knvv-ktgrd,              "客戶的科目指派群組
+        vtext TYPE tskdt-vtext,             "稅分類
+        taxkd TYPE knvi-taxkd,
+        kvgr1 TYPE knvv-kvgr1,
+        bezei1 TYPE tvv1t-bezei,            "發票註記
+        kvgr2 TYPE knvv-kvgr2,
+        bezei2 TYPE tvv2t-bezei,            "電子發票類型
+        kvgr3 TYPE knvv-kvgr3,
+        bezei3 TYPE tvv3t-bezei,            "運送方式
+        kvgr4 TYPE knvv-kvgr4,              "申請運費碼
+        kvgr5 TYPE knvv-kvgr5,              "發票列印抬頭
+        zz1_sdpay_csa TYPE knvv-zz1_sdpay_csa,  "結帳週期
+        zz1_sqacday1_csa TYPE knvv-zz1_sqacday1_csa, "結帳日一
+        zz1_sqacday2_csa TYPE knvv-zz1_sqacday2_csa, "結帳日二
+        zz1_sqacday3_csa TYPE knvv-zz1_sqacday3_csa, "結帳日三
+        zz1_invday_csa TYPE knvv-zz1_invday_csa,     "票期
+        zz1_psprice_csa TYPE knvv-zz1_psprice_csa,       "處方籤取價順序
+        zz1_forage_csa TYPE knvv-zz1_forage_csa,     "飼糧類別
+        zz1_trssale_csa TYPE knvv-zz1_trssale_csa,   "委託代銷
+        credit_sgmnt(100),                  "信用區段 (穿到KUNNR) 遇到部門T110 顯示後兩碼 其他顯示部門
+        credit_limit(14),                   "設定額度
+        name11 TYPE kna1-name1,             "常用送貨人
+        stras1 TYPE kna1-stras,             "常用送貨地址
+        name12 TYPE kna1-name1,             "常用付款人
+        stras2 TYPE kna1-stras,             "常用付款地址
+        name13 TYPE kna1-name1,             "常用發票人
+        stras3 TYPE kna1-stras,             "常用發票地址
+        sales TYPE kna1-name1,              "主要業務員
+        stras TYPE kna1-stras,              "函證地址
+        w_page(20),
+        num(3),
+      END OF wa_detail,
+      t_detail LIKE STANDARD TABLE OF wa_detail.
+
+"待審核的判斷key
+DATA: BEGIN OF wa_knb1,
+        kunnr TYPE knb1-kunnr,
+        confs TYPE knb1-confs,
+      END OF wa_knb1,
+      t_knb1 LIKE STANDARD TABLE OF wa_knb1.
+
+"食品業者登錄字號
+DATA: BEGIN OF wa_adrct,
+        addrnumber TYPE adrct-addrnumber,
+        remark TYPE adrct-remark,
+      END OF wa_adrct,
+      t_adrct LIKE STANDARD TABLE OF wa_adrct.
+
+"電子郵件
+DATA: BEGIN OF wa_adr6,
+        addrnumber TYPE adr6-addrnumber,
+        smtp_addr TYPE adr6-smtp_addr,
+      END OF wa_adr6,
+      t_adr6 LIKE STANDARD TABLE OF wa_adr6.
+
+"ADRC地址 : 郵遞區號+城市+街道
+DATA: BEGIN OF wa_adrc,
+        addrnumber TYPE adrc-addrnumber,
+        city1 TYPE adrc-city1,
+        street TYPE adrc-street,
+        post_code1 TYPE adrc-post_code1,
+      END OF wa_adrc,
+      t_adrc LIKE STANDARD TABLE OF wa_adrc.
+
+"抓手機號碼 => r3_user 等於 3 時就是行動電話
+DATA: BEGIN OF wa_adr2,
+        addrnumber TYPE adr2-addrnumber,
+        tel_number TYPE adr2-tel_number,
+        r3_user TYPE adr2-r3_user,
+      END OF wa_adr2,
+      t_adr2 LIKE STANDARD TABLE OF wa_adr2.
+
+" ATWRT
+"負責人: Z_BP_01_01  聯絡人2: Z_BP_01_04 債務人4: Z_BP_01_02 實際經營者3: Z_BP_01_03
+"經營年限5: Z_BP_FS_03  經營項目6: Z_BP_FS_02 "經營規模7: Z_BP_FS_04  經營面積8: Z_BP_FS_05
+"ATWTB
+"經營方式: Z_BP_FS_01  "銷售屬性2: Z_SD_BP_FSN_01  業態3: Z_SD_BP_FSN_02   客戶分類4: Z_SD_BP_FSN_03
+DATA: BEGIN OF wa_ausp,
+        objek TYPE ausp-objek,
+        atinn TYPE ausp-atinn,
+        atnam TYPE cabn-atnam, "Key
+        atwrt TYPE ausp-atwrt,
+        atwtb TYPE cawnt-atwtb,
+        dec_value_from TYPE ausp-dec_value_from,
+      END OF wa_ausp,
+      t_ausp LIKE STANDARD TABLE OF wa_ausp.
+DATA: BEGIN OF wa_cawnt,
+        atinn TYPE cawnt-atinn,
+        atwtb TYPE cawnt-atwtb,
+      END OF wa_cawnt,
+      t_cawnt LIKE STANDARD TABLE OF wa_cawnt.
+
+"客戶全名
+DATA: BEGIN OF wa_kna1,
+        kunnr TYPE kna1-kunnr,
+        name1 TYPE kna1-name1,
+        name2 TYPE kna1-name2,
+        stras TYPE kna1-stras,
+      END OF wa_kna1,
+      t_kna1 LIKE STANDARD TABLE OF wa_kna1.
+
+"分組
+DATA: BEGIN OF wa_t077x,
+        ktokd TYPE t077x-ktokd,
+        txt30 TYPE t077x-txt30,
+      END OF wa_t077x,
+      t_t077x LIKE STANDARD TABLE OF wa_t077x.
+
+"Default Value VKORG SPART
+DATA: BEGIN OF wa_usr05,
+        bname TYPE usr05-bname,
+        parid TYPE usr05-parid,
+        parva TYPE usr05-parva,
+      END OF wa_usr05,
+      t_usr05 LIKE STANDARD TABLE OF wa_usr05.
+
+"付款條件說明 : 明細
+DATA: BEGIN OF wa_t052u,
+        zterm TYPE t052u-zterm,
+        text1 TYPE t052u-text1,
+      END OF wa_t052u,
+      t_t052u LIKE STANDARD TABLE OF wa_t052u.
+
+"發票註記 說明
+DATA: BEGIN OF wa_tvv1t,
+        kvgr1 TYPE tvv1t-kvgr1,
+        bezei TYPE tvv1t-bezei,
+      END OF wa_tvv1t,
+      t_tvv1t LIKE STANDARD TABLE OF wa_tvv1t.
+
+"電子發票類別 說明
+DATA: BEGIN OF wa_tvv2t,
+        kvgr2 TYPE tvv2t-kvgr2,
+        bezei TYPE tvv2t-bezei,
+      END OF wa_tvv2t,
+      t_tvv2t LIKE STANDARD TABLE OF wa_tvv2t.
+
+"運送方式 說明
+DATA: BEGIN OF wa_tvv3t,
+        kvgr3 TYPE tvv3t-kvgr3,
+        bezei TYPE tvv3t-bezei,
+      END OF wa_tvv3t,
+      t_tvv3t LIKE STANDARD TABLE OF wa_tvv3t.
+
+"信用區段  設定額度
+DATA: BEGIN OF wa_credit,
+        partner TYPE ukmbp_cms_sgm-partner,
+        credit_sgmnt TYPE ukmbp_cms_sgm-credit_sgmnt,          "遇到部門T110 顯示後兩碼 其他顯示部門
+        credit_limit TYPE ukmbp_cms_sgm-credit_limit,
+        credit_sgmnt_txt TYPE ukmcred_sgm0t-credit_sgmnt_txt, "傳送這一段
+      END OF wa_credit,
+      t_credit LIKE STANDARD TABLE OF wa_credit.
+
+"業務員 夥伴
+DATA: BEGIN OF wa_knvp,
+        kunnr TYPE knvp-kunnr,
+        parvw TYPE knvp-parvw,
+        defpa TYPE knvp-defpa, "打勾使用列印 不打勾列一第一筆
+        name1 TYPE kna1-name1, "傳送這一段
+        stras TYPE kna1-stras, "這是地址
+      END OF wa_knvp,
+      t_knvp LIKE STANDARD TABLE OF wa_knvp.
+
+"稅分類
+DATA: BEGIN OF wa_tskdt,
+        taxkd TYPE tskdt-taxkd,
+        vtext TYPE tskdt-vtext,
+      END OF wa_tskdt,
+      t_tskdt LIKE STANDARD TABLE OF wa_tskdt.
+DATA: BEGIN OF wa_knvi,
+        kunnr TYPE knvi-kunnr,
+        taxkd TYPE knvi-taxkd,
+      END OF wa_knvi,
+      t_knvi LIKE STANDARD TABLE OF wa_knvi.
+"公司
+DATA: BEGIN OF wa_tvko,
+        vkorg TYPE tvko-vkorg,
+        bukrs TYPE tvko-bukrs,
+      END OF wa_tvko,
+      t_tvko LIKE STANDARD TABLE OF wa_tvko.
+
+DATA: BEGIN OF wa_t001,
+        bukrs TYPE t001-bukrs,
+        butxt TYPE t001-butxt,
+      END OF wa_t001,
+      t_t001 LIKE STANDARD TABLE OF wa_t001.
+
+DATA: output_options     TYPE ssfcompop,
+      control_parameters TYPE ssfctrlop,
+      w_fm_name          TYPE rs38l_fnam.
+
+***********************************************************************
+* Selection Screen / Option / Parameter
+***********************************************************************
+SELECTION-SCREEN BEGIN OF LINE.
+SELECTION-SCREEN COMMENT (32) TEXT-r01.
+PARAMETERS p_chk RADIOBUTTON GROUP rad DEFAULT 'X' USER-COMMAND a.
+SELECTION-SCREEN COMMENT (12) TEXT-r02.
+PARAMETERS p_chked RADIOBUTTON GROUP rad.
+SELECTION-SCREEN COMMENT (12) TEXT-r03.
+PARAMETERS p_all RADIOBUTTON GROUP rad.
+SELECTION-SCREEN COMMENT (12) TEXT-r04.
+SELECTION-SCREEN END OF LINE.
+
+PARAMETERS: p_vkorg TYPE knvv-vkorg OBLIGATORY.
+SELECT-OPTIONS: s_spart FOR knvv-spart,
+                s_kunnr FOR kna1-kunnr.
