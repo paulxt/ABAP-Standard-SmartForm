@@ -1,0 +1,156 @@
+*&---------------------------------------------------------------------*
+*&      Form  PRINT_DATA PAUL
+*&---------------------------------------------------------------------*
+FORM print_data_all .
+    control_parameters-no_dialog =      "是否彈出對話框
+    control_parameters-preview =        "預覽
+    output_options-tdnewid = 'X'.       "新的佇列請求
+    CALL FUNCTION 'SSF_FUNCTION_MODULE_NAME'
+      EXPORTING
+        formname           = 'ZRSDSD509'
+      IMPORTING
+        fm_name            = w_fm_name
+      EXCEPTIONS
+        no_form            = 1
+        no_function_module = 2
+        OTHERS             = 3.
+      IF sy-subrc <> 0.
+          MESSAGE ID sy-msgid TYPE sy-msgty NUMBER sy-msgno
+          WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
+      ENDIF.
+
+    SORT t_main BY kunnr.
+
+    CLEAR wa_main.
+    LOOP AT t_main INTO wa_main.
+        AT FIRST.
+            control_parameters-no_close = 'X'.
+        ENDAT.
+        AT LAST.
+            control_parameters-no_close = space.
+        ENDAT.
+        CALL FUNCTION w_fm_name
+          EXPORTING
+            control_parameters = control_parameters
+            output_options     = output_options
+            user_settings      = space
+            is_head            = wa_main
+            prog_id            = sy-repid.
+        IF sy-subrc <> 0.
+            MESSAGE ID sy-msgid TYPE sy-msgty NUMBER sy-msgno
+                   WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
+        ENDIF.
+        control_parameters-no_open = 'X'.
+    ENDLOOP.
+    CLEAR: control_parameters-no_close, control_parameters-no_open.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*&      Form  PRINT_DATA PAUL
+*&---------------------------------------------------------------------*
+FORM print_data_chk .
+    CLEAR: wa_main, wa_detail, lwa_main, lt_main[].
+    LOOP AT t_main INTO wa_main WHERE confs = '1'.
+        MOVE-CORRESPONDING wa_main TO lwa_main.
+        APPEND lwa_main TO lt_main.
+    ENDLOOP.
+    IF lt_main IS INITIAL.
+        MESSAGE s999.
+    ENDIF.
+    control_parameters-no_dialog =      "是否彈出對話框
+    control_parameters-preview =        "預覽
+    output_options-tdnewid = 'X'.       "新的佇列請求
+    CALL FUNCTION 'SSF_FUNCTION_MODULE_NAME'
+      EXPORTING
+        formname           = 'ZRSDSD509'
+      IMPORTING
+        fm_name            = w_fm_name
+      EXCEPTIONS
+        no_form            = 1
+        no_function_module = 2
+        OTHERS             = 3.
+      IF sy-subrc <> 0.
+          MESSAGE ID sy-msgid TYPE sy-msgty NUMBER sy-msgno
+          WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
+      ENDIF.
+
+    SORT t_main BY kunnr.
+
+    CLEAR wa_main.
+    LOOP AT lt_main INTO lwa_main.
+        AT FIRST.
+            control_parameters-no_close = 'X'.
+        ENDAT.
+        AT LAST.
+            control_parameters-no_close = space.
+        ENDAT.
+        CALL FUNCTION w_fm_name
+          EXPORTING
+            control_parameters = control_parameters
+            output_options     = output_options
+            user_settings      = space
+            is_head            = lwa_main
+            prog_id            = sy-repid.
+        IF sy-subrc <> 0.
+            MESSAGE ID sy-msgid TYPE sy-msgty NUMBER sy-msgno
+                   WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
+        ENDIF.
+        control_parameters-no_open = 'X'.
+    ENDLOOP.
+    CLEAR: lt_main[], control_parameters-no_close, control_parameters-no_open.
+ENDFORM.
+*&---------------------------------------------------------------------*
+*&      Form  PRINT_DATA PAUL
+*&---------------------------------------------------------------------*
+FORM print_data_chked .
+    CLEAR: wa_main, wa_detail, lwa_main, lt_main[].
+    LOOP AT t_main INTO wa_main WHERE confs IS INITIAL.
+        MOVE-CORRESPONDING wa_main TO lwa_main.
+        APPEND lwa_main TO lt_main.
+    ENDLOOP.
+
+    IF lt_main IS INITIAL.
+        MESSAGE s999.
+    ENDIF.
+
+    control_parameters-no_dialog =      "是否彈出對話框
+    control_parameters-preview =        "預覽
+    output_options-tdnewid = 'X'.       "新的佇列請求
+    CALL FUNCTION 'SSF_FUNCTION_MODULE_NAME'
+      EXPORTING
+        formname           = 'ZRSDSD509'
+      IMPORTING
+        fm_name            = w_fm_name
+      EXCEPTIONS
+        no_form            = 1
+        no_function_module = 2
+        OTHERS             = 3.
+      IF sy-subrc <> 0.
+          MESSAGE ID sy-msgid TYPE sy-msgty NUMBER sy-msgno
+          WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
+      ENDIF.
+
+    SORT t_main BY kunnr.
+
+    CLEAR wa_main.
+    LOOP AT lt_main INTO lwa_main.
+        AT FIRST.
+            control_parameters-no_close = 'X'.
+        ENDAT.
+        AT LAST.
+            control_parameters-no_close = space.
+        ENDAT.
+        CALL FUNCTION w_fm_name
+          EXPORTING
+            control_parameters = control_parameters
+            output_options     = output_options
+            user_settings      = space
+            is_head            = lwa_main
+            prog_id            = sy-repid.
+        IF sy-subrc <> 0.
+            MESSAGE ID sy-msgid TYPE sy-msgty NUMBER sy-msgno
+                   WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
+        ENDIF.
+        control_parameters-no_open = 'X'.
+    ENDLOOP.
+    CLEAR: control_parameters-no_close, control_parameters-no_open.
+ENDFORM.
