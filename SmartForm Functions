@@ -7,7 +7,7 @@ FORM print_data_all .
     output_options-tdnewid = 'X'.       "新的佇列請求
     CALL FUNCTION 'SSF_FUNCTION_MODULE_NAME'
       EXPORTING
-        formname           = 'ZRSDSD509'
+        formname           = 'SmartformName'
       IMPORTING
         fm_name            = w_fm_name
       EXCEPTIONS
